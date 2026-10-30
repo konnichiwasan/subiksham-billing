@@ -19,29 +19,29 @@
    phone uses its saved copy. Use Settings > "Reset to file catalogue"
    to pick up edits made here.
    ===================================================================== */
-const SECTIONS = ['PODIS', 'MASALAS', 'KANJI & HEALTH MIXES'];
+const SECTIONS = ['IDLI PODIS', 'RICE MIXES', 'MASALAS', 'KANJI & HEALTH MIXES'];
 
 const DEFAULT_ITEMS = [
-  // ---- PODIS ----
-  { id: 'idli',      section: 'PODIS', name: 'Idli Podi',                 desc: '',                     weight: '100 g', price: 75,  stock: '', keywords: 'idly podi milagai podi' },
-  { id: 'kuidli',    section: 'PODIS', name: 'Karuppu Ulundhu Idli Podi', desc: 'whole black urad',     weight: '100 g', price: 100, stock: '', keywords: 'karuppu ulundu urad black urad dal idly' },
-  { id: 'gun',       section: 'PODIS', name: 'Gunpowder Idli Podi',                desc: '',                     weight: '100 g', price: 100, stock: '', keywords: 'gun powder gunpowder gunpowder idli podi milagai podi' },
-  { id: 'paruppu',   section: 'PODIS', name: 'Paruppu Podi',              desc: '',                     weight: '100 g', price: 100, stock: '', keywords: 'parupu dal podi' },
-  { id: 'paruppu150',section: 'PODIS', name: 'Paruppu Podi',              desc: '',                     weight: '150 g', price: 150, stock: '', keywords: 'parupu dal podi' },
-  { id: 'kollurice', section: 'PODIS', name: 'Kollu Rice Podi',           desc: '',                     weight: '100 g', price: 75,  stock: '', keywords: 'horse gram horsegram kulthi' },
-  { id: 'kollurasam',section: 'PODIS', name: 'Kollu Rasam Podi',          desc: 'horse gram',           weight: '100 g', price: 100, stock: '', keywords: 'horsegram kulthi rasam' },
-  { id: 'curry',     section: 'PODIS', name: 'Curry Leaves Rice Mix',     desc: '',                     weight: '100 g', price: 100, stock: '', keywords: 'karuveppilai kariveppilai curry leaf podi' },
+  // ---- IDLI PODIS / RICE MIXES ----
+  { id: 'idli',      section: 'IDLI PODIS', name: 'Idli Podi',                 desc: '',                     weight: '100 g', price: 75,  stock: '', keywords: 'idly podi milagai podi' },
+  { id: 'kuidli',    section: 'IDLI PODIS', name: 'Karuppu Ulundhu Idli Podi', desc: '',     weight: '100 g', price: 100, stock: '', keywords: 'karuppu ulundu urad black urad dal idly' },
+  { id: 'gun',       section: 'IDLI PODIS', name: 'Gunpowder Idli Podi',                desc: '',                     weight: '100 g', price: 100, stock: '', keywords: 'gun powder gunpowder gunpowder idli podi milagai podi' },
+  { id: 'paruppu',   section: 'RICE MIXES', name: 'Paruppu Rice Mix',          desc: '',                     weight: '100 g', price: 100, stock: '', keywords: 'paruppu podi parupu dal podi' },
+  { id: 'paruppu150',section: 'RICE MIXES', name: 'Paruppu Rice Mix',          desc: '',                     weight: '150 g', price: 150, stock: '', keywords: 'paruppu podi parupu dal podi' },
+  { id: 'kollurice', section: 'RICE MIXES', name: 'Kollu Rice Mix',            desc: '',                     weight: '100 g', price: 75,  stock: '', keywords: 'kollu podi horse gram horsegram kulthi' },
+  { id: 'kollurasam',section: 'MASALAS', name: 'Kollu Rasam Podi',          desc: '',           weight: '100 g', price: 100, stock: '', keywords: 'horsegram kulthi rasam' },
+  { id: 'curry',     section: 'RICE MIXES', name: 'Curry Leaves Rice Mix',     desc: '',                     weight: '100 g', price: 100, stock: '', keywords: 'karuveppilai kariveppilai curry leaf podi curry leaves powder' },
   // ---- MASALAS ----
   { id: 'sambar',    section: 'MASALAS', name: 'Sambar Podi',             desc: '',                     weight: '250 g', price: 175, stock: '', keywords: 'sambhar sambaar' },
-  { id: 'chilli',    section: 'MASALAS', name: 'Chilli Powder',           desc: 'sun-dried, no added colour', weight: '100 g', price: 75, stock: '', keywords: 'chili chillie milagai molagai mirchi' },
+  { id: 'chilli',    section: 'MASALAS', name: 'Chilli Powder',           desc: '', weight: '100 g', price: 75, stock: '', keywords: 'chili chillie milagai molagai mirchi' },
   { id: 'turmeric',  section: 'MASALAS', name: 'Turmeric Powder',         desc: '',                     weight: '100 g', price: 75,  stock: '', keywords: 'manjal haldi tumeric' },
   { id: 'coriander', section: 'MASALAS', name: 'Coriander Powder',        desc: '',                     weight: '100 g', price: 60,  stock: '', keywords: 'malli kothamalli dhania dhaniya' },
   { id: 'hing',      section: 'MASALAS', name: 'Hing',                    desc: '',                     weight: '50 g', price: 110, stock: '', keywords: 'perungayam perunkayam asafoetida' },
   // ---- KANJI & HEALTH MIXES ----
   { id: 'ulundukanji', section: 'KANJI & HEALTH MIXES', name: 'Ulundu Kanji Mix', desc: '',                 weight: '200 g', price: 150, stock: '', keywords: 'ulundhu urad porridge kanji' },
-  { id: 'kavuni',    section: 'KANJI & HEALTH MIXES', name: 'Kavuni Kanji Mix',   desc: 'black rice',       weight: '250 g', price: 150, stock: '', keywords: 'kavini karuppu kavuni black rice porridge' },
+  { id: 'kavuni',    section: 'KANJI & HEALTH MIXES', name: 'Karuppu Kavuni Kanji Mix', desc: '',       weight: '250 g', price: 150, stock: '', keywords: 'kavini karuppu kavuni black rice porridge' },
   { id: 'sk',        section: 'KANJI & HEALTH MIXES', name: '5K Kanji Mix',       desc: 'kavuni, karunkuruvai, kattuyanam, kollu, kullakar',                 weight: '250 g', price: 150, stock: '', keywords: 'five 5k sk porridge kanji karuppu kavuni karunkuruvai kattuyanam kaatu yaanam kollu kullakar heritage rice' },
-  { id: 'herbal',    section: 'KANJI & HEALTH MIXES', name: 'Herbal Water Mix',   desc: 'herbal drinking water', weight: '25 g', price: 25, stock: '', keywords: 'mooligai kudineer drinking water' },
+  { id: 'herbal',    section: 'KANJI & HEALTH MIXES', name: 'Herbal Water Mix',   desc: '', weight: '25 g', price: 25, stock: '', keywords: 'mooligai kudineer drinking water' },
 ];
 
 const SHOP = {
@@ -297,7 +297,7 @@ const load = (k, d) => { try { const v = localStorage.getItem(k); return v ? JSO
 const save = (k, v) => localStorage.setItem(k, JSON.stringify(v));
 const clone = o => JSON.parse(JSON.stringify(o));
 
-const CATALOG_VER = 6;  // bump when DEFAULT_ITEMS prices/weights change so phones pick it up
+const CATALOG_VER = 9;  // bump when DEFAULT_ITEMS prices/weights change so phones pick it up
 let items = load(K.items, null) || clone(DEFAULT_ITEMS);
 if (load('sbk_catver', 1) !== CATALOG_VER) {
   // refresh names/weights/prices from the file, keep each item's stock and any items amma added herself
