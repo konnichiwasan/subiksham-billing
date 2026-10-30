@@ -296,6 +296,8 @@ const clone = o => JSON.parse(JSON.stringify(o));
 let items = load(K.items, null) || clone(DEFAULT_ITEMS);
 let day = load(K.day, null) || { start: Date.now(), sales: [] };
 if (!load(K.day, null)) save(K.day, day);
+/* ask Chrome to keep this data permanently (not auto-cleared when storage is low) */
+try { if (navigator.storage && navigator.storage.persist) navigator.storage.persist(); } catch(e){}
 let cart = [];          // [{key,id,name,weight,price,qty}]
 let lastSale = null;
 
@@ -524,9 +526,10 @@ function exportCSV(sales, fname){
   setTimeout(()=>URL.revokeObjectURL(url), 5000); toast('CSV downloaded');
 }
 function newDay(){
-  if(!confirm('Start a new day? Today\'s bills will move to the archive on this phone.')) return;
+  if(!confirm('Start a new day? Today\'s bills will be saved to Downloads and moved to the archive on this phone.')) return;
   const sold=soldToday(); const tr=items.filter(i=>i.stock!==''&&i.stock!=null);
   if(tr.length && confirm('Carry remaining stock forward as the new opening stock?')){ tr.forEach(i=>i.stock=Math.max(0,remaining(i,sold))); save(K.items, items); }
+  if(day.sales.length){ try{ exportCSV(day.sales, 'subiksham-'+fmtD(day.start)+'.csv'); }catch(e){} }  // auto-save day's bills to phone Downloads
   const arch=load(K.archive,[]); arch.push({ start:day.start, end:Date.now(), sales:day.sales, summary:summary(day) }); save(K.archive, arch);
   day={ start:Date.now(), sales:[] }; save(K.day, day); toast('New day started'); renderToday();
 }
