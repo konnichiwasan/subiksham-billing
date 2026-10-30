@@ -38,7 +38,7 @@ const DEFAULT_ITEMS = [
   { id: 'coriander', section: 'MASALAS', name: 'Coriander Powder',        desc: '',                     weight: '100 g', price: 60,  stock: '', keywords: 'malli kothamalli dhania dhaniya' },
   { id: 'hing',      section: 'MASALAS', name: 'Hing',                    desc: '',                     weight: '50 g', price: 110, stock: '', keywords: 'perungayam perunkayam asafoetida' },
   // ---- KANJI & HEALTH MIXES ----
-  { id: 'ulundukanji', section: 'KANJI & HEALTH MIXES', name: 'Ulundu Kanji Mix', desc: '',                 weight: '100 g', price: 75,  stock: '', keywords: 'ulundhu urad porridge kanji' },
+  { id: 'ulundukanji', section: 'KANJI & HEALTH MIXES', name: 'Ulundu Kanji Mix', desc: '',                 weight: '200 g', price: 150, stock: '', keywords: 'ulundhu urad porridge kanji' },
   { id: 'kavuni',    section: 'KANJI & HEALTH MIXES', name: 'Kavuni Kanji Mix',   desc: 'black rice',       weight: '250 g', price: 150, stock: '', keywords: 'kavini karuppu kavuni black rice porridge' },
   { id: 'sk',        section: 'KANJI & HEALTH MIXES', name: 'SK Kanji Mix',       desc: '',                 weight: '250 g', price: 150, stock: '', keywords: 'porridge kanji' },
   { id: 'herbal',    section: 'KANJI & HEALTH MIXES', name: 'Herbal Water Mix',   desc: 'herbal drinking water', weight: '25 g', price: 25, stock: '', keywords: 'mooligai kudineer drinking water' },
@@ -293,7 +293,15 @@ const load = (k, d) => { try { const v = localStorage.getItem(k); return v ? JSO
 const save = (k, v) => localStorage.setItem(k, JSON.stringify(v));
 const clone = o => JSON.parse(JSON.stringify(o));
 
+const CATALOG_VER = 2;  // bump when DEFAULT_ITEMS prices/weights change so phones pick it up
 let items = load(K.items, null) || clone(DEFAULT_ITEMS);
+if (load('sbk_catver', 1) !== CATALOG_VER) {
+  // refresh names/weights/prices from the file, keep each item's stock and any items amma added herself
+  const old = items, ids = new Set(DEFAULT_ITEMS.map(d=>d.id));
+  items = clone(DEFAULT_ITEMS).map(d => { const o = old.find(x=>x.id===d.id); if (o) d.stock = o.stock; return d; })
+            .concat(old.filter(x=>!ids.has(x.id)));
+  save(K.items, items); save('sbk_catver', CATALOG_VER);
+}
 let day = load(K.day, null) || { start: Date.now(), sales: [] };
 if (!load(K.day, null)) save(K.day, day);
 /* ask Chrome to keep this data permanently (not auto-cleared when storage is low) */
