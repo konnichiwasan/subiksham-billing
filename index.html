@@ -30,7 +30,7 @@ const DEFAULT_ITEMS = [
   { id: 'paruppu150',section: 'PODIS', name: 'Paruppu Podi',              desc: '',                     weight: '150 g', price: 150, stock: '', keywords: 'parupu dal podi' },
   { id: 'kollurice', section: 'PODIS', name: 'Kollu Rice Podi',           desc: '',                     weight: '100 g', price: 75,  stock: '', keywords: 'horse gram horsegram kulthi' },
   { id: 'kollurasam',section: 'PODIS', name: 'Kollu Rasam Podi',          desc: 'horse gram',           weight: '100 g', price: 100, stock: '', keywords: 'horsegram kulthi rasam' },
-  { id: 'curry',     section: 'PODIS', name: 'Curry Leaves Powder',       desc: '',                     weight: '100 g', price: 100, stock: '', keywords: 'karuveppilai kariveppilai curry leaf podi' },
+  { id: 'curry',     section: 'PODIS', name: 'Curry Leaves Rice Mix',     desc: '',                     weight: '100 g', price: 100, stock: '', keywords: 'karuveppilai kariveppilai curry leaf podi' },
   // ---- MASALAS ----
   { id: 'sambar',    section: 'MASALAS', name: 'Sambar Podi',             desc: '',                     weight: '250 g', price: 175, stock: '', keywords: 'sambhar sambaar' },
   { id: 'chilli',    section: 'MASALAS', name: 'Chilli Powder',           desc: 'sun-dried, no added colour', weight: '100 g', price: 75, stock: '', keywords: 'chili chillie milagai molagai mirchi' },
@@ -297,7 +297,7 @@ const load = (k, d) => { try { const v = localStorage.getItem(k); return v ? JSO
 const save = (k, v) => localStorage.setItem(k, JSON.stringify(v));
 const clone = o => JSON.parse(JSON.stringify(o));
 
-const CATALOG_VER = 5;  // bump when DEFAULT_ITEMS prices/weights change so phones pick it up
+const CATALOG_VER = 6;  // bump when DEFAULT_ITEMS prices/weights change so phones pick it up
 let items = load(K.items, null) || clone(DEFAULT_ITEMS);
 if (load('sbk_catver', 1) !== CATALOG_VER) {
   // refresh names/weights/prices from the file, keep each item's stock and any items amma added herself
