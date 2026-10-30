@@ -1,0 +1,582 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no, viewport-fit=cover">
+<meta name="theme-color" content="#6d1a1f">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<title>Subiksham Billing</title>
+<link rel="manifest" href="manifest.webmanifest">
+<link rel="icon" href="icon-192.png">
+<script>
+/* =====================================================================
+   CATALOGUE — EDIT HERE
+   Each item: id (unique, never reuse), section, name, desc (short grey
+   italic line, may be ''), weight, price (₹), stock ('' = not tracked),
+   keywords (extra search words / spellings, space separated).
+   NOTE: once Amma saves changes in the in-app Settings screen, the
+   phone uses its saved copy. Use Settings > "Reset to file catalogue"
+   to pick up edits made here.
+   ===================================================================== */
+const SECTIONS = ['PODIS', 'MASALAS', 'KANJI & HEALTH MIXES'];
+
+const DEFAULT_ITEMS = [
+  // ---- PODIS ----
+  { id: 'idli',      section: 'PODIS', name: 'Idli Podi',                 desc: '',                     weight: '100 g', price: 75,  stock: '', keywords: 'idly podi milagai podi' },
+  { id: 'kuidli',    section: 'PODIS', name: 'Karuppu Ulundhu Idli Podi', desc: 'whole black urad',     weight: '100 g', price: 100, stock: '', keywords: 'karuppu ulundu urad black urad dal idly' },
+  { id: 'gun',       section: 'PODIS', name: 'Gun Powder',                desc: '',                     weight: '100 g', price: 100, stock: '', keywords: 'gunpowder idli podi milagai podi' },
+  { id: 'paruppu',   section: 'PODIS', name: 'Paruppu Podi',              desc: '',                     weight: '100 g', price: 100, stock: '', keywords: 'parupu dal podi' },
+  { id: 'paruppu150',section: 'PODIS', name: 'Paruppu Podi',              desc: '',                     weight: '150 g', price: 150, stock: '', keywords: 'parupu dal podi' },
+  { id: 'kollurice', section: 'PODIS', name: 'Kollu Rice Podi',           desc: '',                     weight: '100 g', price: 75,  stock: '', keywords: 'horse gram horsegram kulthi' },
+  { id: 'kollurasam',section: 'PODIS', name: 'Kollu Rasam Podi',          desc: 'horse gram',           weight: '100 g', price: 100, stock: '', keywords: 'horsegram kulthi rasam' },
+  { id: 'curry',     section: 'PODIS', name: 'Curry Leaves Powder',       desc: '',                     weight: '100 g', price: 100, stock: '', keywords: 'karuveppilai kariveppilai curry leaf podi' },
+  // ---- MASALAS ----
+  { id: 'sambar',    section: 'MASALAS', name: 'Sambar Podi',             desc: '',                     weight: '250 g', price: 175, stock: '', keywords: 'sambhar sambaar' },
+  { id: 'chilli',    section: 'MASALAS', name: 'Chilli Powder',           desc: 'sun-dried, no added colour', weight: '100 g', price: 75, stock: '', keywords: 'chili chillie milagai molagai mirchi' },
+  { id: 'turmeric',  section: 'MASALAS', name: 'Turmeric Powder',         desc: '',                     weight: '100 g', price: 75,  stock: '', keywords: 'manjal haldi tumeric' },
+  { id: 'coriander', section: 'MASALAS', name: 'Coriander Powder',        desc: '',                     weight: '100 g', price: 60,  stock: '', keywords: 'malli kothamalli dhania dhaniya' },
+  { id: 'hing',      section: 'MASALAS', name: 'Hing',                    desc: '',                     weight: '50 g', price: 110, stock: '', keywords: 'perungayam perunkayam asafoetida' },
+  // ---- KANJI & HEALTH MIXES ----
+  { id: 'ulundukanji', section: 'KANJI & HEALTH MIXES', name: 'Ulundu Kanji Mix', desc: '',                 weight: '100 g', price: 75,  stock: '', keywords: 'ulundhu urad porridge kanji' },
+  { id: 'kavuni',    section: 'KANJI & HEALTH MIXES', name: 'Kavuni Kanji Mix',   desc: 'black rice',       weight: '250 g', price: 150, stock: '', keywords: 'kavini karuppu kavuni black rice porridge' },
+  { id: 'sk',        section: 'KANJI & HEALTH MIXES', name: 'SK Kanji Mix',       desc: '',                 weight: '250 g', price: 150, stock: '', keywords: 'porridge kanji' },
+  { id: 'herbal',    section: 'KANJI & HEALTH MIXES', name: 'Herbal Water Mix',   desc: 'herbal drinking water', weight: '25 g', price: 25, stock: '', keywords: 'mooligai kudineer drinking water' },
+];
+
+const SHOP = {
+  name: 'SUBIKSHAM',
+  tagline: 'Taste the difference',
+  thanks: 'Thank you! Homemade with love by Amma',
+  footer: 'No added colour · No maida · No preservative',
+};
+/* ===================== END OF CATALOGUE ===================== */
+</script>
+<style>
+:root{
+  --maroon:#6d1a1f; --maroon2:#8a2a2f; --turmeric:#e0a526; --turmeric-l:#fbefd0;
+  --paper:#fbf7ef; --card:#ffffff; --ink:#2b1d17; --grey:#857a72; --line:#e6dccb;
+  --green:#2e7d32;
+  --serif: Georgia, "Noto Serif", "Droid Serif", "Times New Roman", serif;
+  --sans: system-ui, -apple-system, Roboto, "Segoe UI", sans-serif;
+}
+*{box-sizing:border-box;-webkit-tap-highlight-color:transparent}
+html,body{margin:0;padding:0;background:var(--paper);color:var(--ink);font-family:var(--sans);font-size:16px}
+body{touch-action:manipulation;overscroll-behavior-y:contain}
+button{font:inherit;touch-action:manipulation;cursor:pointer;border:0}
+input,select{font:inherit}
+.hidden{display:none!important}
+.screen{min-height:100vh}
+
+/* Header */
+.hdr{background:var(--paper);text-align:center;padding:10px 64px 6px;position:relative;border-bottom:1.5px solid var(--ink)}
+.brand{font-family:var(--serif);font-size:24px;letter-spacing:.28em;font-weight:600;margin:0;padding-left:.28em;color:var(--ink)}
+.tag{font-size:9.5px;letter-spacing:.32em;color:var(--ink);margin-top:2px;padding-left:.32em}
+.hbtn{position:absolute;top:8px;height:44px;min-width:44px;border-radius:10px;background:transparent;color:var(--maroon);font-size:13px;font-weight:600;padding:0 8px}
+.hbtn.l{left:6px}.hbtn.r{right:6px}
+.hbtn .ic{font-size:22px;display:block;line-height:1}
+.hbtn small{display:block;font-size:10px;letter-spacing:.06em}
+
+/* Search */
+.searchwrap{position:sticky;top:0;z-index:20;background:var(--paper);padding:8px 10px;border-bottom:1px solid var(--line)}
+.search{position:relative}
+.search input{width:100%;height:48px;border:1.5px solid var(--line);border-radius:24px;padding:0 48px 0 42px;font-size:17px;background:#fff;color:var(--ink);outline:none}
+.search input:focus{border-color:var(--turmeric)}
+.search .mag{position:absolute;left:14px;top:12px;font-size:18px;color:var(--grey);pointer-events:none}
+.search .clr{position:absolute;right:4px;top:4px;width:40px;height:40px;border-radius:20px;background:var(--line);color:var(--ink);font-size:20px;line-height:40px}
+
+/* Sections & tiles */
+.list{padding:4px 10px 130px}
+.sec{font-size:11px;letter-spacing:.22em;font-weight:700;color:var(--ink);margin:14px 2px 6px;padding-bottom:4px;border-bottom:1px solid var(--ink)}
+.grid{display:grid;grid-template-columns:1fr 1fr;gap:8px}
+.tile{position:relative;background:var(--card);border:1.5px solid var(--line);border-radius:12px;padding:10px 10px 8px;min-height:104px;text-align:left;display:flex;flex-direction:column;justify-content:space-between;user-select:none;-webkit-user-select:none;color:var(--ink)}
+.tile:active{transform:scale(.97);background:var(--turmeric-l)}
+.tile.on{border-color:var(--maroon);border-width:2px;background:#fff9ec}
+.tile .nm{font-family:var(--serif);font-size:16px;line-height:1.2;padding-right:22px}
+.tile .ds{font-style:italic;font-size:11.5px;color:var(--grey);margin-top:2px;line-height:1.2}
+.tile .row{display:flex;align-items:flex-end;justify-content:flex-end;gap:8px;margin-top:6px}
+.tile .wt{font-size:11px;color:var(--grey)}
+.tile .pr{font-family:var(--serif);font-weight:700;font-size:19px}
+.tile .st{font-size:10.5px;color:var(--grey);margin-right:auto}
+.tile .st.low{color:#b3261e;font-weight:700}
+.badge{position:absolute;top:-8px;right:-6px;min-width:30px;height:30px;border-radius:15px;background:var(--maroon);color:#fff;font-weight:700;font-size:16px;line-height:30px;text-align:center;padding:0 6px;box-shadow:0 1px 3px rgba(0,0,0,.25)}
+.minus{position:absolute;left:-6px;bottom:-6px;width:40px;height:40px;border-radius:20px;background:var(--turmeric);color:var(--ink);font-size:26px;font-weight:700;line-height:38px;box-shadow:0 1px 3px rgba(0,0,0,.25)}
+.tile.other{border-style:dashed;justify-content:center;align-items:center;text-align:center;color:var(--maroon)}
+.tile.other .nm{padding:0;font-size:17px}
+.noresult{color:var(--grey);font-style:italic;padding:8px 2px}
+.foot{text-align:center;font-size:11px;color:var(--grey);letter-spacing:.05em;margin:18px 0 0}
+
+/* Bottom bar */
+.bar{position:fixed;left:0;right:0;bottom:0;z-index:30;background:var(--maroon);color:#fff;display:flex;align-items:center;gap:8px;padding:10px 10px calc(10px + env(safe-area-inset-bottom));box-shadow:0 -2px 8px rgba(0,0,0,.2)}
+.bar .cnt{font-size:13px;line-height:1.2;opacity:.9;min-width:52px}
+.bar .cnt b{font-size:20px;display:block;opacity:1}
+.bar .tot{flex:1;text-align:right;font-family:var(--serif);font-weight:700;font-size:32px;letter-spacing:.01em}
+.bar .tot small{font-size:11px;font-family:var(--sans);letter-spacing:.2em;display:block;opacity:.8;font-weight:600}
+.bar .clear{background:transparent;color:#fff;border:1.5px solid rgba(255,255,255,.5);border-radius:10px;height:48px;padding:0 10px;font-size:14px}
+.bar .pay{background:var(--turmeric);color:var(--ink);border-radius:12px;height:56px;padding:0 16px;font-size:19px;font-weight:800}
+.bar .pay:disabled{opacity:.45}
+
+/* Generic pages */
+.page{padding:12px 14px 40px}
+.topnav{display:flex;align-items:center;gap:8px;padding:8px 10px;border-bottom:1.5px solid var(--ink);background:var(--paper);position:sticky;top:0;z-index:20}
+.topnav h2{flex:1;margin:0;font-family:var(--serif);font-weight:600;font-size:20px;letter-spacing:.12em;text-align:center}
+.back{height:44px;min-width:70px;border-radius:10px;background:#fff;border:1.5px solid var(--line)!important;color:var(--maroon);font-weight:700}
+.big-btn{display:block;width:100%;height:64px;border-radius:14px;font-size:21px;font-weight:800;margin:10px 0}
+.b-upi{background:var(--green);color:#fff}
+.b-cash{background:var(--maroon);color:#fff}
+.b-turm{background:var(--turmeric);color:var(--ink)}
+.b-wa{background:#1fa855;color:#fff}
+.b-light{background:#fff;color:var(--maroon);border:2px solid var(--maroon)!important}
+.b-sm{height:48px;font-size:16px;font-weight:700;border-radius:12px;padding:0 14px}
+
+.amount-box{text-align:center;background:#fff;border:2px solid var(--turmeric);border-radius:16px;padding:12px 8px 14px;margin:6px 0 10px}
+.amount-box .lbl{font-size:12px;letter-spacing:.2em;color:var(--grey);font-weight:700}
+.amount-box .amt{font-family:var(--serif);font-size:76px;font-weight:700;line-height:1.05;color:var(--maroon);letter-spacing:.02em}
+.amount-box .hint{font-size:14px;color:var(--grey)}
+.lines{font-size:14px;background:#fff;border:1px solid var(--line);border-radius:12px;padding:6px 12px;margin-bottom:6px}
+.lines div{display:flex;justify-content:space-between;padding:4px 0;border-bottom:1px dashed var(--line)}
+.lines div:last-child{border-bottom:0}
+.cashbox{background:#fff;border:1px solid var(--line);border-radius:12px;padding:10px 12px;margin-top:6px}
+.cashbox label{font-size:14px;color:var(--grey)}
+.cashbox input{width:100%;height:52px;font-size:26px;font-weight:700;border:1.5px solid var(--line);border-radius:10px;padding:0 12px;margin-top:4px}
+.quick{display:flex;gap:6px;flex-wrap:wrap;margin-top:8px}
+.quick button{flex:1;min-width:60px;height:46px;border-radius:10px;background:var(--turmeric-l);color:var(--ink);font-weight:700;font-size:16px}
+.change{font-size:22px;font-weight:800;text-align:center;margin-top:10px;min-height:30px}
+.change.neg{color:#b3261e}
+.change.pos{color:var(--green)}
+
+.done-tick{text-align:center;margin:14px 0 6px}
+.done-tick .t{font-size:54px;color:var(--green);line-height:1}
+.done-tick h3{font-family:var(--serif);margin:6px 0 2px;font-size:24px}
+.done-tick p{margin:0;color:var(--grey)}
+.phone{display:flex;align-items:center;border:2px solid var(--line);border-radius:12px;background:#fff;overflow:hidden;margin-top:6px}
+.phone span{padding:0 10px;font-size:20px;font-weight:700;color:var(--grey);border-right:1px solid var(--line);line-height:56px}
+.phone input{flex:1;border:0;height:56px;font-size:22px;padding:0 10px;outline:none;letter-spacing:.06em;min-width:0}
+
+/* Today */
+.cards{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-bottom:10px}
+.card{background:#fff;border:1px solid var(--line);border-radius:12px;padding:10px}
+.card .k{font-size:11px;letter-spacing:.16em;color:var(--grey);font-weight:700}
+.card .v{font-family:var(--serif);font-size:26px;font-weight:700;margin-top:2px}
+.card.wide{grid-column:1/3;background:var(--maroon);color:#fff;border:0}
+.card.wide .k{color:#f3d9a0}.card.wide .v{font-size:38px}
+h4{font-size:11px;letter-spacing:.2em;margin:16px 0 6px;border-bottom:1px solid var(--ink);padding-bottom:4px}
+table{width:100%;border-collapse:collapse;font-size:14px;background:#fff}
+td,th{padding:7px 6px;border-bottom:1px solid var(--line);text-align:left}
+th{font-size:11px;color:var(--grey);letter-spacing:.08em}
+td.n,th.n{text-align:right}
+.bill{background:#fff;border:1px solid var(--line);border-radius:12px;padding:10px;margin-bottom:8px}
+.bill.void{opacity:.55}
+.bill.void .bt{text-decoration:line-through}
+.bill .bh{display:flex;justify-content:space-between;align-items:center;gap:6px}
+.bill .bt{font-weight:700}
+.bill .bi{font-size:13px;color:var(--grey);margin-top:4px}
+.pill{font-size:11px;font-weight:800;padding:3px 8px;border-radius:10px;letter-spacing:.05em}
+.pill.UPI{background:#e3f1e4;color:var(--green)}
+.pill.Cash{background:#f6e2e2;color:var(--maroon)}
+.pill.VOID{background:#eee;color:#555}
+.bill .acts{display:flex;gap:6px;margin-top:8px}
+.bill .acts button{height:40px;border-radius:10px;padding:0 12px;font-weight:700;font-size:14px;background:#f4eee4;color:var(--ink)}
+.bill .acts .danger{background:#fbe3e1;color:#b3261e}
+.btnrow{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-top:10px}
+.btnrow .big-btn{margin:0;font-size:16px;height:56px}
+.muted{color:var(--grey);font-size:13px}
+
+/* Settings */
+.item-ed{background:#fff;border:1px solid var(--line);border-radius:12px;padding:10px;margin-bottom:10px}
+.item-ed .g{display:grid;grid-template-columns:1fr 1fr;gap:6px;margin-top:6px}
+.item-ed label{font-size:11px;color:var(--grey);display:block}
+.item-ed input,.item-ed select{width:100%;height:44px;border:1.5px solid var(--line);border-radius:8px;padding:0 8px;font-size:16px;background:#fff}
+.item-ed .full{grid-column:1/3}
+.item-ed .rm{background:#fbe3e1;color:#b3261e;height:40px;border-radius:8px;font-weight:700;padding:0 12px;margin-top:8px}
+
+/* Modal + toast */
+.modal{position:fixed;inset:0;background:rgba(30,15,10,.55);z-index:60;display:flex;align-items:center;justify-content:center;padding:16px}
+.modal .box{background:var(--paper);border-radius:16px;padding:16px;width:100%;max-width:400px}
+.modal h3{margin:0 0 8px;font-family:var(--serif)}
+.modal input{width:100%;height:52px;border:1.5px solid var(--line);border-radius:10px;padding:0 12px;font-size:19px;margin:4px 0 8px;background:#fff}
+.toast{position:fixed;left:50%;bottom:110px;transform:translateX(-50%);background:var(--ink);color:#fff;padding:10px 16px;border-radius:20px;font-size:15px;z-index:70;max-width:90%;text-align:center}
+</style>
+</head>
+<body>
+
+<!-- ============ MAIN ============ -->
+<section id="s-main" class="screen">
+  <header class="hdr">
+    <button class="hbtn l" id="btn-today" aria-label="Today"><span class="ic">📊</span><small>TODAY</small></button>
+    <h1 class="brand">SUBIKSHAM</h1>
+    <div class="tag">TASTE THE DIFFERENCE</div>
+    <button class="hbtn r" id="btn-settings" aria-label="Settings (press and hold)"><span class="ic">⚙</span><small>HOLD</small></button>
+  </header>
+  <div class="searchwrap">
+    <div class="search">
+      <span class="mag">🔍</span>
+      <input id="q" type="search" placeholder="Search item…" autocomplete="off" autocorrect="off" autocapitalize="off" spellcheck="false">
+      <button class="clr hidden" id="q-clr" aria-label="Clear search">×</button>
+    </div>
+  </div>
+  <div class="list" id="list"></div>
+  <div class="bar">
+    <div class="cnt"><b id="bar-cnt">0</b>items</div>
+    <button class="clear" id="bar-clear">Clear</button>
+    <div class="tot"><small>TOTAL</small>₹<span id="bar-tot">0</span></div>
+    <button class="pay" id="bar-pay" disabled>PAY ›</button>
+  </div>
+</section>
+
+<!-- ============ PAYMENT ============ -->
+<section id="s-pay" class="screen hidden">
+  <div class="topnav"><button class="back" id="pay-back">‹ Edit</button><h2>PAYMENT</h2><span style="width:70px"></span></div>
+  <div class="page">
+    <div class="amount-box">
+      <div class="lbl">PLEASE PAY</div>
+      <div class="amt">₹<span id="pay-amt">0</span></div>
+      <div class="hint">Scan the UPI QR and enter this amount</div>
+    </div>
+    <div class="lines" id="pay-lines"></div>
+    <button class="big-btn b-upi" id="paid-upi">✓ Paid UPI</button>
+    <div class="cashbox">
+      <label for="cash-in">Cash received (optional)</label>
+      <input id="cash-in" type="number" inputmode="numeric" pattern="[0-9]*" placeholder="₹">
+      <div class="quick" id="quick"></div>
+      <div class="change" id="change"></div>
+    </div>
+    <button class="big-btn b-cash" id="paid-cash">✓ Paid Cash</button>
+  </div>
+</section>
+
+<!-- ============ DONE ============ -->
+<section id="s-done" class="screen hidden">
+  <div class="page">
+    <div class="done-tick"><div class="t">✓</div><h3 id="done-title">Bill saved</h3><p id="done-sub"></p></div>
+    <div class="change pos" id="done-change"></div>
+    <label class="muted" for="wa-num">Customer WhatsApp number (optional)</label>
+    <div class="phone"><span>+91</span><input id="wa-num" type="tel" inputmode="numeric" maxlength="14" placeholder="10-digit mobile"></div>
+    <button class="big-btn b-wa" id="wa-send">Send bill on WhatsApp</button>
+    <button class="big-btn b-turm" id="new-bill">New bill ›</button>
+  </div>
+</section>
+
+<!-- ============ TODAY ============ -->
+<section id="s-today" class="screen hidden">
+  <div class="topnav"><button class="back" id="today-back">‹ Bill</button><h2>TODAY</h2><span style="width:70px"></span></div>
+  <div class="page" id="today-body"></div>
+</section>
+
+<!-- ============ SETTINGS ============ -->
+<section id="s-settings" class="screen hidden">
+  <div class="topnav"><button class="back" id="set-back">‹ Back</button><h2>SETTINGS</h2><button class="back" id="set-save" style="background:var(--maroon);color:#fff">Save</button></div>
+  <div class="page">
+    <p class="muted">Edit items below, then tap <b>Save</b>. Opening stock blank = not tracked.</p>
+    <div id="set-list"></div>
+    <button class="big-btn b-light" id="set-add">+ Add item</button>
+    <button class="big-btn b-cash" id="set-save2">Save changes</button>
+    <h4>ADVANCED</h4>
+    <button class="big-btn b-light b-sm" style="width:100%" id="set-reset">Reset to file catalogue</button>
+    <p class="muted">Sales and bill numbers are not affected by these buttons.</p>
+  </div>
+</section>
+
+<div id="modal" class="modal hidden"><div class="box">
+  <h3>Other item</h3>
+  <input id="o-name" placeholder="Item name" autocomplete="off">
+  <input id="o-price" type="number" inputmode="numeric" placeholder="Price ₹">
+  <div class="btnrow"><button class="big-btn b-light" id="o-cancel">Cancel</button><button class="big-btn b-cash" id="o-add">Add</button></div>
+</div></div>
+<div id="toast" class="toast hidden"></div>
+
+<script>
+'use strict';
+/* ---------- storage ---------- */
+const K = { items:'sbk_items', day:'sbk_day', archive:'sbk_archive', next:'sbk_nextBill' };
+const load = (k, d) => { try { const v = localStorage.getItem(k); return v ? JSON.parse(v) : d; } catch(e){ return d; } };
+const save = (k, v) => localStorage.setItem(k, JSON.stringify(v));
+const clone = o => JSON.parse(JSON.stringify(o));
+
+let items = load(K.items, null) || clone(DEFAULT_ITEMS);
+let day = load(K.day, null) || { start: Date.now(), sales: [] };
+if (!load(K.day, null)) save(K.day, day);
+let cart = [];          // [{key,id,name,weight,price,qty}]
+let lastSale = null;
+
+const $ = id => document.getElementById(id);
+const rs = n => '₹' + Number(n).toLocaleString('en-IN');
+const esc = s => String(s ?? '').replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+const pad = n => String(n).padStart(2,'0');
+const fmtDT = ts => { const d = new Date(ts); let h = d.getHours(), ap = h>=12?'PM':'AM'; h = h%12||12;
+  return `${pad(d.getDate())}-${pad(d.getMonth()+1)}-${d.getFullYear()} ${h}:${pad(d.getMinutes())} ${ap}`; };
+const fmtT = ts => fmtDT(ts).split(' ').slice(1).join(' ');
+const fmtD = ts => fmtDT(ts).split(' ')[0];
+
+function toast(msg, ms=1800){ const t=$('toast'); t.textContent=msg; t.classList.remove('hidden'); clearTimeout(toast._t); toast._t=setTimeout(()=>t.classList.add('hidden'),ms); }
+function show(id){ document.querySelectorAll('.screen').forEach(s=>s.classList.add('hidden')); $(id).classList.remove('hidden'); window.scrollTo(0,0); }
+
+/* ---------- fuzzy search ---------- */
+// lower-case, letters only, drop 'h' after consonant (dh->d, th->t), collapse doubles (pp->p, ll->l)
+function norm(s){ return String(s).toLowerCase().replace(/[^a-z0-9]/g,'').replace(/([bcdgjklmnprstvz])h/g,'$1').replace(/(.)\1+/g,'$1'); }
+function haystack(it){ return norm(it.name) + '|' + norm(it.desc||'') + '|' + (it.keywords||'').split(/[ ,]+/).map(norm).join('|') + '|' + norm(it.section); }
+function matches(it, q){ if(!q) return true; const h = haystack(it); return q.trim().split(/\s+/).map(norm).filter(Boolean).every(w => h.includes(w)); }
+
+/* ---------- sold & stock ---------- */
+function soldToday(){ const m={}; day.sales.forEach(s=>{ if(s.void) return; s.lines.forEach(l=>{ const k=l.id||('other:'+l.name); m[k]=(m[k]||0)+l.qty; }); }); return m; }
+function remaining(it, sold){ if(it.stock===''||it.stock==null) return null; return Number(it.stock) - (sold[it.id]||0); }
+
+/* ---------- main render ---------- */
+function qtyOf(id){ const l=cart.find(c=>c.key===id); return l?l.qty:0; }
+function renderList(){
+  const q = $('q').value; const sold = soldToday(); let html=''; let any=false;
+  SECTIONS.concat(items.some(i=>!SECTIONS.includes(i.section))?['OTHER']:[]).forEach(sec=>{
+    const its = items.filter(i => (SECTIONS.includes(i.section)?i.section:'OTHER')===sec && matches(i,q));
+    if(!its.length) return; any=true;
+    html += `<div class="sec">${esc(sec)}</div><div class="grid">`;
+    its.forEach(it=>{
+      const n=qtyOf(it.id), rem=remaining(it,sold);
+      html += `<div class="tile${n?' on':''}" role="button" data-add="${esc(it.id)}">
+        <div><div class="nm">${esc(it.name)}</div>${it.desc?`<div class="ds">${esc(it.desc)}</div>`:''}</div>
+        <div class="row">${rem!==null?`<span class="st${rem<=3?' low':''}">${rem} left</span>`:''}<span class="wt">${esc(it.weight)}</span><span class="pr">₹${esc(it.price)}</span></div>
+        ${n?`<span class="badge">${n}</span><button class="minus" data-minus="${esc(it.id)}" aria-label="minus">−</button>`:''}
+      </div>`;
+    });
+    html += `</div>`;
+  });
+  if(!any) html += `<div class="noresult">No item matches “${esc(q)}”.</div>`;
+  // custom lines + always-visible Other tile
+  const others = cart.filter(c=>!c.id);
+  html += `<div class="sec">OTHER</div><div class="grid">`;
+  others.forEach(o=>{ html += `<div class="tile on" data-add="${esc(o.key)}"><div><div class="nm">${esc(o.name)}</div></div><div class="row"><span class="pr">₹${o.price}</span></div><span class="badge">${o.qty}</span><button class="minus" data-minus="${esc(o.key)}">−</button></div>`; });
+  html += `<button class="tile other" id="other-tile"><div class="nm">+ Other item</div><div class="ds">any name &amp; price</div></button></div>`;
+  html += `<p class="foot">${esc(SHOP.footer)}</p>`;
+  $('list').innerHTML = html;
+  renderBar();
+}
+function renderBar(){
+  const cnt = cart.reduce((a,c)=>a+c.qty,0), tot = cart.reduce((a,c)=>a+c.qty*c.price,0);
+  $('bar-cnt').textContent=cnt; $('bar-tot').textContent=tot.toLocaleString('en-IN'); $('bar-pay').disabled = cnt===0;
+}
+function addItem(key){
+  let l = cart.find(c=>c.key===key);
+  if(l) l.qty++;
+  else { const it = items.find(i=>i.id===key); if(!it) return; cart.push({key, id:it.id, name:it.name, weight:it.weight, price:Number(it.price)||0, qty:1}); }
+  if($('q').value){ $('q').value=''; $('q-clr').classList.add('hidden'); $('q').blur(); }
+  renderList();
+  if(navigator.vibrate) try{navigator.vibrate(15);}catch(e){}
+}
+function minusItem(key){ const l=cart.find(c=>c.key===key); if(!l) return; l.qty--; if(l.qty<=0) cart=cart.filter(c=>c!==l); renderList(); }
+
+$('list').addEventListener('click', e=>{
+  const m = e.target.closest('[data-minus]'); if(m){ e.stopPropagation(); minusItem(m.dataset.minus); return; }
+  if(e.target.closest('#other-tile')){ openOther(); return; }
+  const t = e.target.closest('[data-add]'); if(t) addItem(t.dataset.add);
+});
+$('q').addEventListener('input', ()=>{ $('q-clr').classList.toggle('hidden', !$('q').value); renderList(); });
+$('q-clr').addEventListener('click', ()=>{ $('q').value=''; $('q-clr').classList.add('hidden'); renderList(); $('q').focus(); });
+$('bar-clear').addEventListener('click', ()=>{ if(!cart.length) return; if(confirm('Clear this bill?')){ cart=[]; renderList(); } });
+$('bar-pay').addEventListener('click', openPay);
+
+/* ---------- other item ---------- */
+function openOther(){ $('o-name').value=''; $('o-price').value=''; $('modal').classList.remove('hidden'); setTimeout(()=>$('o-name').focus(),50); }
+$('o-cancel').addEventListener('click', ()=>$('modal').classList.add('hidden'));
+$('o-add').addEventListener('click', ()=>{
+  const name=$('o-name').value.trim()||'Other item', price=Math.round(Number($('o-price').value));
+  if(!(price>0)){ toast('Enter a price'); return; }
+  cart.push({key:'o'+Date.now(), id:null, name, weight:'', price, qty:1});
+  $('modal').classList.add('hidden'); $('q').value=''; $('q-clr').classList.add('hidden'); renderList();
+});
+
+/* ---------- payment ---------- */
+const cartTotal = () => cart.reduce((a,c)=>a+c.qty*c.price,0);
+function openPay(){
+  if(!cart.length) return;
+  const tot = cartTotal();
+  $('pay-amt').textContent = tot.toLocaleString('en-IN');
+  $('pay-lines').innerHTML = cart.map(c=>`<div><span>${esc(c.name)}${c.weight?' '+esc(c.weight):''} × ${c.qty}</span><b>${rs(c.qty*c.price)}</b></div>`).join('');
+  $('cash-in').value=''; $('change').textContent=''; $('change').className='change';
+  const notes = [tot, ...[50,100,200,500,2000].filter(n=>n>tot)].slice(0,4);
+  const rounded = Math.ceil(tot/100)*100; if(rounded>tot && !notes.includes(rounded)) notes.splice(1,0,rounded);
+  $('quick').innerHTML = [...new Set(notes)].slice(0,4).map(n=>`<button data-cash="${n}">${n===tot?'Exact':'₹'+n}</button>`).join('');
+  show('s-pay');
+}
+function updChange(){
+  const tot=cartTotal(), v=$('cash-in').value, c=$('change');
+  if(v===''){ c.textContent=''; c.className='change'; return; }
+  const diff = Number(v)-tot;
+  if(diff<0){ c.textContent=`Short by ${rs(-diff)}`; c.className='change neg'; }
+  else { c.textContent=`Give change: ${rs(diff)}`; c.className='change pos'; }
+}
+$('cash-in').addEventListener('input', updChange);
+$('quick').addEventListener('click', e=>{ const b=e.target.closest('[data-cash]'); if(!b) return; $('cash-in').value=b.dataset.cash; updChange(); });
+$('pay-back').addEventListener('click', ()=>{ show('s-main'); renderList(); });
+$('paid-upi').addEventListener('click', ()=>completeSale('UPI'));
+$('paid-cash').addEventListener('click', ()=>{
+  const v=$('cash-in').value; if(v!=='' && Number(v)<cartTotal()){ if(!confirm('Cash received is less than total. Save anyway?')) return; }
+  completeSale('Cash');
+});
+function completeSale(mode){
+  if(!cart.length) return;
+  const no = load(K.next, 1);
+  const total = cartTotal();
+  const sale = { no, ts: Date.now(), mode, total, lines: cart.map(c=>({id:c.id, name:c.name, weight:c.weight, price:c.price, qty:c.qty})), void:false };
+  if(mode==='Cash' && $('cash-in').value!==''){ sale.received=Number($('cash-in').value); sale.change=sale.received-total; }
+  day.sales.push(sale); save(K.day, day); save(K.next, no+1);   // saved BEFORE any WhatsApp step
+  lastSale = sale; cart = [];
+  $('done-title').textContent = `Bill #${no} saved`;
+  $('done-sub').textContent = `${rs(total)} · ${mode}`;
+  $('done-change').textContent = (sale.change>0) ? `Give change: ${rs(sale.change)}` : '';
+  $('wa-num').value='';
+  show('s-done');
+}
+
+/* ---------- WhatsApp ---------- */
+function billText(s){
+  const L = [];
+  L.push(`*${SHOP.name}* – ${SHOP.tagline}`);
+  L.push(`Bill #${s.no}`);
+  L.push(fmtDT(s.ts));
+  L.push('--------------------');
+  s.lines.forEach(l=>L.push(`${l.name}${l.weight?' ('+l.weight+')':''} x ${l.qty} = ₹${l.qty*l.price}`));
+  L.push('--------------------');
+  L.push(`*TOTAL: ₹${s.total}*`);
+  L.push(`Paid by: ${s.mode}`);
+  L.push('');
+  L.push(SHOP.thanks);
+  L.push(`_${SHOP.footer}_`);
+  return L.join('\n');
+}
+function cleanPhone(v){ let d=String(v).replace(/\D/g,''); if(d.length===12 && d.startsWith('91')) d=d.slice(2); if(d.length===11 && d.startsWith('0')) d=d.slice(1); return d; }
+function openWA(phone, text){
+  const url = (phone ? `https://wa.me/91${phone}` : 'https://wa.me/') + '?text=' + encodeURIComponent(text);
+  window.__lastWA = url;
+  const a=document.createElement('a'); a.href=url; a.target='_blank'; a.rel='noopener'; document.body.appendChild(a); a.click(); a.remove();
+}
+$('wa-send').addEventListener('click', ()=>{
+  if(!lastSale) return;
+  const raw=$('wa-num').value.trim(), p=cleanPhone(raw);
+  if(raw && !/^[6-9]\d{9}$/.test(p)){ toast('Enter a 10-digit mobile number, or leave blank'); return; }
+  lastSale.phone = p||''; save(K.day, day);
+  openWA(p, billText(lastSale));
+});
+$('new-bill').addEventListener('click', ()=>{ lastSale=null; $('q').value=''; $('q-clr').classList.add('hidden'); show('s-main'); renderList(); });
+
+/* ---------- Today ---------- */
+function summary(d){
+  const live=d.sales.filter(s=>!s.void);
+  const r={ total:0, upi:0, cash:0, bills:live.length, voids:d.sales.length-live.length, items:{} };
+  live.forEach(s=>{ r.total+=s.total; if(s.mode==='UPI') r.upi+=s.total; else r.cash+=s.total;
+    s.lines.forEach(l=>{ const k=(l.name+(l.weight?' '+l.weight:'')); const o=r.items[k]||(r.items[k]={qty:0,amt:0,id:l.id}); o.qty+=l.qty; o.amt+=l.qty*l.price; }); });
+  return r;
+}
+function renderToday(){
+  const r=summary(day), sold=soldToday();
+  let h = `<p class="muted" style="margin-top:0">Day started ${fmtDT(day.start)}</p>
+  <div class="cards">
+    <div class="card wide"><div class="k">TOTAL SALES</div><div class="v" id="t-total">${rs(r.total)}</div></div>
+    <div class="card"><div class="k">UPI</div><div class="v" id="t-upi">${rs(r.upi)}</div></div>
+    <div class="card"><div class="k">CASH</div><div class="v" id="t-cash">${rs(r.cash)}</div></div>
+    <div class="card"><div class="k">BILLS</div><div class="v" id="t-bills">${r.bills}</div></div>
+    <div class="card"><div class="k">VOIDED</div><div class="v">${r.voids}</div></div>
+  </div>
+  <div class="btnrow"><button class="big-btn b-cash" id="t-csv">⬇ Export CSV</button><button class="big-btn b-wa" id="t-share">Share summary</button></div>
+  <h4>ITEMS SOLD</h4>`;
+  const keys=Object.keys(r.items);
+  h += keys.length ? `<table><tr><th>Item</th><th class="n">Qty</th><th class="n">₹</th></tr>${keys.map(k=>`<tr><td>${esc(k)}</td><td class="n">${r.items[k].qty}</td><td class="n">${r.items[k].amt}</td></tr>`).join('')}</table>` : `<p class="muted">No sales yet.</p>`;
+  const tracked = items.filter(i=>i.stock!==''&&i.stock!=null);
+  if(tracked.length){ h += `<h4>STOCK REMAINING</h4><table><tr><th>Item</th><th class="n">Open</th><th class="n">Sold</th><th class="n">Left</th></tr>${tracked.map(i=>{const left=remaining(i,sold);return `<tr><td>${esc(i.name)} ${esc(i.weight)}</td><td class="n">${i.stock}</td><td class="n">${sold[i.id]||0}</td><td class="n" style="${left<=3?'color:#b3261e;font-weight:700':''}">${left}</td></tr>`;}).join('')}</table>`; }
+  h += `<h4>BILLS</h4>`;
+  h += day.sales.length ? day.sales.slice().reverse().map(s=>`<div class="bill${s.void?' void':''}">
+      <div class="bh"><span class="bt">#${s.no} · ${rs(s.total)}</span><span class="pill ${s.void?'VOID':s.mode}">${s.void?'VOID':s.mode.toUpperCase()}</span></div>
+      <div class="bi">${fmtT(s.ts)} — ${s.lines.map(l=>esc(l.name)+' ×'+l.qty).join(', ')}${s.received!=null?` · cash ${rs(s.received)}`:''}</div>
+      <div class="acts">${s.void?`<button data-unvoid="${s.no}">Restore</button><button class="danger" data-del="${s.no}">Delete</button>`:`<button data-resend="${s.no}">WhatsApp</button><button class="danger" data-void="${s.no}">Void</button>`}</div>
+    </div>`).join('') : `<p class="muted">No bills yet.</p>`;
+  const arch = load(K.archive, []);
+  h += `<h4>END OF DAY</h4><button class="big-btn b-light" id="t-newday">Start new day</button>
+  <p class="muted">Closes today and moves its bills to the archive on this phone (${arch.length} past day${arch.length===1?'':'s'} saved). Bill numbers keep counting.</p>
+  ${arch.length?`<button class="big-btn b-light b-sm" style="width:100%" id="t-csvall">⬇ Export all days CSV</button>`:''}`;
+  $('today-body').innerHTML = h;
+}
+function findSale(no){ return day.sales.find(s=>s.no===Number(no)); }
+$('today-body').addEventListener('click', e=>{
+  const b=e.target.closest('button'); if(!b) return;
+  if(b.id==='t-csv') return exportCSV(day.sales, 'subiksham-'+fmtD(day.start)+'.csv');
+  if(b.id==='t-csvall'){ const all=load(K.archive,[]).flatMap(a=>a.sales).concat(day.sales); return exportCSV(all,'subiksham-all.csv'); }
+  if(b.id==='t-share') return openWA('', dayText());
+  if(b.id==='t-newday') return newDay();
+  if(b.dataset.void){ const s=findSale(b.dataset.void); if(s && confirm(`Void bill #${s.no} (${rs(s.total)})? It will not count in totals.`)){ s.void=true; s.voidTs=Date.now(); save(K.day,day); renderToday(); } return; }
+  if(b.dataset.unvoid){ const s=findSale(b.dataset.unvoid); if(s){ s.void=false; save(K.day,day); renderToday(); } return; }
+  if(b.dataset.del){ const s=findSale(b.dataset.del); if(s && confirm(`Delete bill #${s.no} permanently?`)){ day.sales=day.sales.filter(x=>x!==s); save(K.day,day); renderToday(); } return; }
+  if(b.dataset.resend){ const s=findSale(b.dataset.resend); if(s) openWA(s.phone||'', billText(s)); }
+});
+function dayText(){
+  const r=summary(day); const L=[`*${SHOP.name}* – Day summary`, fmtD(day.start)+(fmtD(day.start)!==fmtD(Date.now())?' to '+fmtD(Date.now()):''), '--------------------',
+    `Total sales: ₹${r.total}`, `UPI: ₹${r.upi}`, `Cash: ₹${r.cash}`, `Bills: ${r.bills}${r.voids?` (${r.voids} voided)`:''}`, '--------------------', 'Items sold:'];
+  Object.keys(r.items).forEach(k=>L.push(`${k} x ${r.items[k].qty} = ₹${r.items[k].amt}`));
+  const sold=soldToday(), tr=items.filter(i=>i.stock!==''&&i.stock!=null);
+  if(tr.length){ L.push('--------------------','Stock left:'); tr.forEach(i=>L.push(`${i.name} ${i.weight}: ${remaining(i,sold)}`)); }
+  return L.join('\n');
+}
+function csvCell(v){ v=String(v??''); return /[",\n]/.test(v)?'"'+v.replace(/"/g,'""')+'"':v; }
+function exportCSV(sales, fname){
+  const rows=[['Bill No','Date','Time','Item','Weight','Qty','Price','Line Total','Bill Total','Payment','Cash Received','Change','Status','Customer Phone']];
+  sales.forEach(s=>s.lines.forEach(l=>rows.push([s.no, fmtD(s.ts), fmtT(s.ts), l.name, l.weight, l.qty, l.price, l.qty*l.price, s.total, s.mode, s.received??'', s.change??'', s.void?'VOID':'OK', s.phone?'91'+s.phone:''])));
+  const csv='\ufeff'+rows.map(r=>r.map(csvCell).join(',')).join('\r\n');
+  window.__lastCSV = csv;
+  const blob=new Blob([csv],{type:'text/csv;charset=utf-8'}); const url=URL.createObjectURL(blob);
+  const a=document.createElement('a'); a.href=url; a.download=fname; document.body.appendChild(a); a.click(); a.remove();
+  setTimeout(()=>URL.revokeObjectURL(url), 5000); toast('CSV downloaded');
+}
+function newDay(){
+  if(!confirm('Start a new day? Today\'s bills will move to the archive on this phone.')) return;
+  const sold=soldToday(); const tr=items.filter(i=>i.stock!==''&&i.stock!=null);
+  if(tr.length && confirm('Carry remaining stock forward as the new opening stock?')){ tr.forEach(i=>i.stock=Math.max(0,remaining(i,sold))); save(K.items, items); }
+  const arch=load(K.archive,[]); arch.push({ start:day.start, end:Date.now(), sales:day.sales, summary:summary(day) }); save(K.archive, arch);
+  day={ start:Date.now(), sales:[] }; save(K.day, day); toast('New day started'); renderToday();
+}
+$('btn-today').addEventListener('click', ()=>{ renderToday(); show('s-today'); });
+$('today-back').addEventListener('click', ()=>{ show('s-main'); renderList(); });
+
+/* ---------- Settings (press & hold to open) ---------- */
+(function(){
+  const b=$('btn-settings'); let t=null, opened=false;
+  const start=e=>{ opened=false; t=setTimeout(()=>{ opened=true; openSettings(); }, 700); };
+  const end=()=>{ clearTimeout(t); };
+  b.addEventListener('pointerdown', start); b.addEventListener('pointerup', end); b.addEventListener('pointerleave', end); b.addEventListener('pointercancel', end);
+  b.addEventListener('contextmenu', e=>e.preventDefault());
+  b.addEventListener('click', ()=>{ if(!opened) toast('Press and hold ⚙ to open Settings'); });
+})();
+let draft=[];
+function openSettings(){ draft=clone(items); renderSettings(); show('s-settings'); }
+function renderSettings(){
+  $('set-list').innerHTML = draft.map((it,i)=>`<div class="item-ed" data-i="${i}">
+    <label>Name</label><input data-f="name" value="${esc(it.name)}">
+    <div class="g">
+      <div><label>Price ₹</label><input data-f="price" type="number" inputmode="numeric" value="${esc(it.price)}"></div>
+      <div><label>Weight</label><input data-f="weight" value="${esc(it.weight)}"></div>
+      <div><label>Opening stock</label><input data-f="stock" type="number" inputmode="numeric" placeholder="not tracked" value="${esc(it.stock)}"></div>
+      <div><label>Section</label><select data-f="section">${SECTIONS.map(s=>`<option${s===it.section?' selected':''}>${esc(s)}</option>`).join('')}</select></div>
+      <div class="full"><label>Description (optional)</label><input data-f="desc" value="${esc(it.desc)}"></div>
+      <div class="full"><label>Search words (optional)</label><input data-f="keywords" value="${esc(it.keywords)}"></div>
+    </div>
+    <button class="rm" data-rm="${i}">Remove item</button></div>`).join('');
+}
+$('set-list').addEventListener('input', e=>{ const f=e.target.dataset.f; if(!f) return; const i=+e.target.closest('[data-i]').dataset.i; draft[i][f]=e.target.value; });
+$('set-list').addEventListener('change', e=>{ const f=e.target.dataset.f; if(!f) return; const i=+e.target.closest('[data-i]').dataset.i; draft[i][f]=e.target.value; });
+$('set-list').addEventListener('click', e=>{ const b=e.target.closest('[data-rm]'); if(!b) return; const it=draft[+b.dataset.rm]; if(confirm(`Remove ${it.name||'this item'}?`)){ draft.splice(+b.dataset.rm,1); renderSettings(); } });
+$('set-add').addEventListener('click', ()=>{ draft.push({id:'i'+Date.now(), section:SECTIONS[0], name:'', desc:'', weight:'100 g', price:'', stock:'', keywords:''}); renderSettings(); const l=$('set-list').lastElementChild; l.scrollIntoView(); l.querySelector('input').focus(); });
+function saveSettings(){
+  for(const it of draft){ if(!it.name.trim()){ toast('Every item needs a name'); return; } if(!(Number(it.price)>0)){ toast(`Set a price for ${it.name}`); return; } }
+  items = draft.map(it=>({...it, name:it.name.trim(), price:Number(it.price), stock: it.stock===''||it.stock==null?'':Number(it.stock)}));
+  save(K.items, items); toast('Saved'); show('s-main'); renderList();
+}
+$('set-save').addEventListener('click', saveSettings); $('set-save2').addEventListener('click', saveSettings);
+$('set-back').addEventListener('click', ()=>{ if(JSON.stringify(draft)!==JSON.stringify(items) && !confirm('Discard unsaved changes?')) return; show('s-main'); renderList(); });
+$('set-reset').addEventListener('click', ()=>{ if(confirm('Replace all items with the catalogue written in the file?')){ draft=clone(DEFAULT_ITEMS); renderSettings(); toast('Loaded — tap Save to keep'); } });
+
+/* ---------- Android back button stays in app ---------- */
+window.addEventListener('popstate', ()=>{ if($('s-main').classList.contains('hidden')){ show('s-main'); renderList(); } history.pushState(null,''); });
+history.pushState(null,'');
+
+/* ---------- start ---------- */
+renderList();
+if('serviceWorker' in navigator && location.protocol.startsWith('http')){ navigator.serviceWorker.register('sw.js').catch(()=>{}); }
+</script>
+</body>
+</html>
