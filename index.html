@@ -25,7 +25,7 @@ const DEFAULT_ITEMS = [
   // ---- PODIS ----
   { id: 'idli',      section: 'PODIS', name: 'Idli Podi',                 desc: '',                     weight: '100 g', price: 75,  stock: '', keywords: 'idly podi milagai podi' },
   { id: 'kuidli',    section: 'PODIS', name: 'Karuppu Ulundhu Idli Podi', desc: 'whole black urad',     weight: '100 g', price: 100, stock: '', keywords: 'karuppu ulundu urad black urad dal idly' },
-  { id: 'gun',       section: 'PODIS', name: 'Gun Powder',                desc: '',                     weight: '100 g', price: 100, stock: '', keywords: 'gunpowder idli podi milagai podi' },
+  { id: 'gun',       section: 'PODIS', name: 'Gunpowder Idli Podi',                desc: '',                     weight: '100 g', price: 100, stock: '', keywords: 'gun powder gunpowder gunpowder idli podi milagai podi' },
   { id: 'paruppu',   section: 'PODIS', name: 'Paruppu Podi',              desc: '',                     weight: '100 g', price: 100, stock: '', keywords: 'parupu dal podi' },
   { id: 'paruppu150',section: 'PODIS', name: 'Paruppu Podi',              desc: '',                     weight: '150 g', price: 150, stock: '', keywords: 'parupu dal podi' },
   { id: 'kollurice', section: 'PODIS', name: 'Kollu Rice Podi',           desc: '',                     weight: '100 g', price: 75,  stock: '', keywords: 'horse gram horsegram kulthi' },
@@ -40,14 +40,14 @@ const DEFAULT_ITEMS = [
   // ---- KANJI & HEALTH MIXES ----
   { id: 'ulundukanji', section: 'KANJI & HEALTH MIXES', name: 'Ulundu Kanji Mix', desc: '',                 weight: '200 g', price: 150, stock: '', keywords: 'ulundhu urad porridge kanji' },
   { id: 'kavuni',    section: 'KANJI & HEALTH MIXES', name: 'Kavuni Kanji Mix',   desc: 'black rice',       weight: '250 g', price: 150, stock: '', keywords: 'kavini karuppu kavuni black rice porridge' },
-  { id: 'sk',        section: 'KANJI & HEALTH MIXES', name: 'SK Kanji Mix',       desc: '',                 weight: '250 g', price: 150, stock: '', keywords: 'porridge kanji' },
+  { id: 'sk',        section: 'KANJI & HEALTH MIXES', name: '5K Kanji Mix',       desc: 'kavuni, karunkuruvai, kattuyanam, kollu, kullakar',                 weight: '250 g', price: 150, stock: '', keywords: 'five 5k sk porridge kanji karuppu kavuni karunkuruvai kattuyanam kaatu yaanam kollu kullakar heritage rice' },
   { id: 'herbal',    section: 'KANJI & HEALTH MIXES', name: 'Herbal Water Mix',   desc: 'herbal drinking water', weight: '25 g', price: 25, stock: '', keywords: 'mooligai kudineer drinking water' },
 ];
 
 const SHOP = {
   name: 'SUBIKSHAM',
   tagline: 'Taste the difference',
-  thanks: 'Thank you! Homemade with love by Amma',
+  thanks: 'Thank you! Homemade by Eswari',
   footer: 'No added colour · No maida · No preservative',
 };
 /* ===================== END OF CATALOGUE ===================== */
@@ -126,6 +126,9 @@ input,select{font:inherit}
 .b-cash{background:var(--maroon);color:#fff}
 .b-turm{background:var(--turmeric);color:var(--ink)}
 .b-wa{background:#1fa855;color:#fff}
+.b-sms{background:#2b5fb3;color:#fff}
+.small-btn{display:block;width:100%;height:46px;border-radius:12px;font-size:16px;font-weight:700;margin:2px 0 10px}
+.b-skip{background:#fff;color:var(--ink);border:2px solid var(--line)}
 .b-light{background:#fff;color:var(--maroon);border:2px solid var(--maroon)!important}
 .b-sm{height:48px;font-size:16px;font-weight:700;border-radius:12px;padding:0 14px}
 
@@ -250,9 +253,10 @@ td.n,th.n{text-align:right}
   <div class="page">
     <div class="done-tick"><div class="t">✓</div><h3 id="done-title">Bill saved</h3><p id="done-sub"></p></div>
     <div class="change pos" id="done-change"></div>
-    <label class="muted" for="wa-num">Customer WhatsApp number (optional)</label>
+    <label class="muted" for="wa-num">Customer mobile number (optional)</label>
     <div class="phone"><span>+91</span><input id="wa-num" type="tel" inputmode="numeric" maxlength="14" placeholder="10-digit mobile"></div>
-    <button class="big-btn b-wa" id="wa-send">Send bill on WhatsApp</button>
+    <div class="btnrow"><button class="big-btn b-wa" id="wa-send">WhatsApp bill</button><button class="big-btn b-sms" id="sms-send">SMS bill</button></div>
+    <button class="big-btn b-skip" id="wa-skip">Skip – no bill needed</button>
     <button class="big-btn b-turm" id="new-bill">New bill ›</button>
   </div>
 </section>
@@ -293,7 +297,7 @@ const load = (k, d) => { try { const v = localStorage.getItem(k); return v ? JSO
 const save = (k, v) => localStorage.setItem(k, JSON.stringify(v));
 const clone = o => JSON.parse(JSON.stringify(o));
 
-const CATALOG_VER = 2;  // bump when DEFAULT_ITEMS prices/weights change so phones pick it up
+const CATALOG_VER = 5;  // bump when DEFAULT_ITEMS prices/weights change so phones pick it up
 let items = load(K.items, null) || clone(DEFAULT_ITEMS);
 if (load('sbk_catver', 1) !== CATALOG_VER) {
   // refresh names/weights/prices from the file, keep each item's stock and any items amma added herself
@@ -440,7 +444,6 @@ function completeSale(mode){
 function billText(s){
   const L = [];
   L.push(`*${SHOP.name}* – ${SHOP.tagline}`);
-  L.push(`Bill #${s.no}`);
   L.push(fmtDT(s.ts));
   L.push('--------------------');
   s.lines.forEach(l=>L.push(`${l.name}${l.weight?' ('+l.weight+')':''} x ${l.qty} = ₹${l.qty*l.price}`));
@@ -465,7 +468,18 @@ $('wa-send').addEventListener('click', ()=>{
   lastSale.phone = p||''; save(K.day, day);
   openWA(p, billText(lastSale));
 });
-$('new-bill').addEventListener('click', ()=>{ lastSale=null; $('q').value=''; $('q-clr').classList.add('hidden'); show('s-main'); renderList(); });
+function nextBill(){ lastSale=null; $('wa-num').value=''; $('q').value=''; $('q-clr').classList.add('hidden'); show('s-main'); renderList(); }
+$('sms-send').addEventListener('click', ()=>{
+  if(!lastSale) return;
+  const raw=$('wa-num').value.trim(), p=cleanPhone(raw);
+  if(raw && !/^[6-9]\d{9}$/.test(p)){ toast('Enter a 10-digit mobile number, or leave blank'); return; }
+  lastSale.phone = p||''; save(K.day, day);
+  const body = billText(lastSale).replace(/[*_]/g,'');   // plain text for SMS
+  const url = 'sms:' + (p ? '+91'+p : '') + '?body=' + encodeURIComponent(body);
+  window.__lastSMS = url; location.href = url;
+});
+$('new-bill').addEventListener('click', nextBill);
+$('wa-skip').addEventListener('click', ()=>{ toast('Bill saved · no WhatsApp'); nextBill(); });
 
 /* ---------- Today ---------- */
 function summary(d){
